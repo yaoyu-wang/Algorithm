@@ -1,0 +1,59 @@
+/*
+329. Longest Increasing Path in a Matrix
+Given an integer matrix, find the length of the longest increasing path.
+
+From each cell, you can either move to four directions: left, right, up or down. 
+You may NOT move diagonally or move outside of the boundary (i.e. wrap-around is not allowed).
+
+Input: nums = 
+[
+  [9,9,4],
+  [6,6,8],
+  [2,1,1]
+] 
+Output: 4 
+Explanation: The longest increasing path is [1, 2, 6, 9].
+
+*/
+
+
+class Solution {
+    
+    int[] dr = {-1, 0, 1, 0};
+    int[] dc = {0, 1, 0, -1};
+    
+    public int longestIncreasingPath(int[][] matrix) {
+        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) return 0;
+        int r = matrix.length, c = matrix[0].length;
+        int[][] dp = new int[r][c];
+        
+        int max = 0;
+        for (int i = 0; i < r; i++){
+            for (int j = 0; j < c; j++){
+                dfs(matrix, i, j, dp);
+                if (dp[i][j] > max) max = dp[i][j];
+            }
+        }
+        
+        return max;
+    }
+    
+    private void dfs(int[][] matrix, int row, int column, int[][] dp){
+        if (dp[row][column] != 0) return;
+        dp[row][column] = 1;
+        for (int i = 0; i < 4; i++){
+            int nextR = row + dr[i];
+            int nextC = column + dc[i];
+            if (isValid(matrix, nextR, nextC, matrix[row][column])){
+                dfs(matrix, nextR, nextC, dp);
+                if (dp[nextR][nextC] + 1 > dp[row][column]){
+                    dp[row][column] = dp[nextR][nextC] + 1;
+                }
+            }
+        }
+    }
+    
+    private boolean isValid(int[][] matrix, int r, int c, int previous){
+        return r >= 0 && r < matrix.length && c >= 0 && c < matrix[0].length && matrix[r][c] > previous;
+    }
+}
