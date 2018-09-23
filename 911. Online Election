@@ -1,0 +1,66 @@
+/*
+
+In an election, the i-th vote was cast for persons[i] at time times[i].
+
+Now, we would like to implement the following query function: TopVotedCandidate.q(int t) will return the number of the person 
+that was leading the election at time t.  
+
+Votes cast at time t will count towards our query.  In the case of a tie, the most recent vote (among tied candidates) wins.
+
+
+Input: ["TopVotedCandidate","q","q","q","q","q","q"], [[[0,1,1,0,0,1,0],[0,5,10,15,20,25,30]],[3],[12],[25],[15],[24],[8]]
+Output: [null,0,1,1,0,0,1]
+Explanation: 
+At time 3, the votes are [0], and 0 is leading.
+At time 12, the votes are [0,1,1], and 1 is leading.
+At time 25, the votes are [0,1,1,0,0,1], and 1 is leading (as ties go to the most recent vote.)
+This continues for 3 more queries at time 15, 24, and 8.
+
+*/
+
+
+class TopVotedCandidate {
+    
+    int[][] record;
+    int p;
+
+    public TopVotedCandidate(int[] persons, int[] times) {
+        record = new int[2][persons.length];
+        p = persons.length - 1;
+        Map<Integer, Integer> count_person = new HashMap<>();
+        Map<Integer, Integer> person_count = new HashMap<>();
+        for (int i = 0; i < persons.length; i++){
+            if (!person_count.containsKey(persons[i])){
+                person_count.put(persons[i], 1);
+                count_person.put(1, persons[i]);
+                record[0][i] = times[i];
+                record[1][i] = count_person.size() == 1 ? persons[i] : record[1][i - 1];
+            }
+            else{
+                person_count.put(persons[i], person_count.get(persons[i]) + 1);
+                count_person.put(person_count.get(persons[i]), persons[i]);
+                record[0][i] = times[i];
+                record[1][i] = count_person.size() == person_count.get(persons[i]) ? persons[i] : record[1][i - 1];
+            }
+        }
+    }
+    
+    public int q(int t) {
+        if (t > record[0][p]) return record[1][p];
+        int start = 0, end = p;
+        while(start + 1 < end){
+            int mid = start + (end - start) / 2;
+            if (record[0][mid] == t){
+                return record[1][mid];
+            }
+            if (record[0][mid] > t){
+                end = mid;
+            }
+            else{
+                start = mid;
+            }
+        }
+        if (record[0][end] == t) return record[1][end];
+        else return record[1][start];
+    }
+}
